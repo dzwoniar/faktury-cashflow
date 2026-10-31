@@ -1,0 +1,4 @@
+id_inwestycji;nazwa;inwestor;etap;data_startu;wartosc_kontraktu;kaucja_proc;status
+I-001;Kamienica Słoneczna 8;Riverpark Development Sp. z o.o.;Elewacja;2025-11-03;1 850 000,00;5;w_trakcie
+I-002;Riverpark Etap II;Riverpark Development Sp. z o.o.;Wykończenia;2026-03-01;2 400 000,00;5;w toku
+I-003;Elewacja Targowa 22;Kamienice Wschód Sp. z o.o.;Elewacja;2026-01-15;940 000,00;7;w_trakcie

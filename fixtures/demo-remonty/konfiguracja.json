@@ -1,0 +1,10 @@
+{
+  "firma": "Firma Demonstracyjna Sp. z o.o.",
+  "na_dzien": "2026-08-11",
+  "saldo_poczatkowe": "720 000,00",
+  "minimalna_poduszka": "250 000,00",
+  "horyzont_tygodni": 12,
+  "min_historii_do_prognozy": 3,
+  "waluta": "PLN",
+  "_uwaga": "Dane w pelni syntetyczne. Zadna z nazw nie odnosi sie do istniejacej firmy ani osoby."
+}

@@ -1,0 +1,36 @@
+id_faktury;id_inwestycji;typ;kontrahent;data_wystawienia;termin_platnosci;kwota_brutto
+FS/2026/01;I-001;sprzedaz;Riverpark Development Sp. z o.o.;2026-02-10;2026-03-12;420 000,00
+FS/2026/05;I-001;sprzedaz;Riverpark Development Sp. z o.o.;2026-04-14;2026-05-14;380 000,00
+FS/2026/09;I-001;sprzedaz;Riverpark Development Sp. z o.o.;2026-06-09;2026-07-09;350 000,00
+FS/2026/14;I-001;sprzedaz;Riverpark Development Sp. z o.o.;2026-07-28;2026-08-27;300 000,00
+FZ/2026/01;I-001;zakup;Rusztowania Pion Sp. z o.o.;2026-03-02;2026-03-16;210 000,00
+FZ/2026/03;I-001;zakup;Tynki Malecki;2026-07-20;2026-08-19;145 000,00
+FZ/2026/07;I-001;zakup;Hurtownia Cegła i Kamień;2026-07-05;2026-08-04;62 400,00
+FS/2026/06;I-002;sprzedaz;Riverpark Development Sp. z o.o.;2026-05-05;2026-06-04;520 000,00
+FS/2026/12;I-002;sprzedaz;Riverpark Development Sp. z o.o.;2026-07-01;2026-07-31;480 000,00
+FS/2026/15;I-002;sprzedaz;Riverpark Development Sp. z o.o.;2026-08-03;2026-09-02;410 000,00
+FZ/2026/05;I-002;zakup;Stolarnia Dębowa;2026-06-10;2026-06-24;240 000,00
+FZ/2026/09;I-002;zakup;Elektro-Instal Wschód;2026-07-24;2026-08-14;198 500,00
+FZ/2026/11;I-002;zakup;Izolacje Termo-Plus;2026-08-01;2026-08-22;176 000,00
+FS/2026/03;I-003;sprzedaz;Kamienice Wschód Sp. z o.o.;2026-03-20;2026-04-19;310 000,00
+FS/2026/08;I-003;sprzedaz;Kamienice Wschód Sp. z o.o.;2026-05-25;2026-06-24;280 000,00
+FS/2026/13;I-003;sprzedaz;Kamienice Wschód Sp. z o.o.;2026-07-15;2026-08-14;240 000,00
+FZ/2026/06;I-003;zakup;Tynki Malecki;2026-07-10;2026-07-31;88 000,00
+FZ/2026/12;I-003;zakup;Hurtownia Cegła i Kamień;2026-08-05;2026-08-26;95 500,00
+FS/2025/21;I-004;sprzedaz;Kamienice Wschód Sp. z o.o.;2025-11-10;2025-12-10;300 000,00
+FS/2026/02;I-004;sprzedaz;Kamienice Wschód Sp. z o.o.;2026-02-18;2026-03-20;220 000,00
+FS/2026/10;I-004;sprzedaz;Kamienice Wschód Sp. z o.o.;2026-06-15;2026-07-15;40 000,00
+FZ/2025/14;I-004;zakup;Dekarstwo Krokiew;2025-10-20;2025-11-03;180 000,00
+FS/2026/04;I-005;sprzedaz;Wspólnota Mieszkaniowa Aleja Lipowa 14;2026-04-02;2026-05-02;380 000,00
+FS/2026/11;I-005;sprzedaz;Wspólnota Mieszkaniowa Aleja Lipowa 14;2026-06-20;2026-07-20;340 000,00
+FS/2026/16;I-005;sprzedaz;Wspólnota Mieszkaniowa Aleja Lipowa 14;2026-08-06;2026-09-05;260 000,00
+FZ/2026/08;I-005;zakup;Izolacje Termo-Plus;2026-07-15;2026-08-05;132 000,00
+FZ/2026/13;I-005;zakup;Rusztowania Pion Sp. z o.o.;2026-08-07;2026-08-28;104 000,00
+FS/2025/18;I-006;sprzedaz;Wspólnota Mieszkaniowa Aleja Lipowa 14;2025-10-05;2025-11-04;260 000,00
+FS/2026/07;I-006;sprzedaz;Wspólnota Mieszkaniowa Aleja Lipowa 14;2026-05-10;2026-06-09;172 000,00
+FZ/2025/11;I-006;zakup;Tynki Malecki;2025-09-15;2025-09-29;150 000,00
+FS/2026/17;I-007;sprzedaz;Horizon Estates Sp. z o.o.;2026-06-30;2026-07-30;300 000,00
+FS/2026/18;I-007;sprzedaz;Horizon Estates Sp. z o.o.;2026-08-04;2026-09-03;420 000,00
+FZ/2026/14;I-007;zakup;Transport Ciężki Woźny;2026-07-28;2026-08-18;210 000,00
+FZ/2026/15;I-007;zakup;Elektro-Instal Wschód;2026-08-08;2026-08-29;168 000,00
+FZ/2026/16;I-008;zakup;Hurtownia Cegła i Kamień;2026-08-10;2026-08-24;145 000,00

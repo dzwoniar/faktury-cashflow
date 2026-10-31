@@ -1,0 +1,9 @@
+id_inwestycji;nazwa;inwestor;etap;data_startu;wartosc_kontraktu;kaucja_proc;status
+I-001;Kamienica Słoneczna 8 - renowacja elewacji;Riverpark Development Sp. z o.o.;Elewacja i detal;2025-11-03;1 850 000,00;5;w_trakcie
+I-002;Riverpark Etap II - części wspólne;Riverpark Development Sp. z o.o.;Stan wykończeniowy;2026-03-01;2 400 000,00;5;w_trakcie
+I-003;Elewacja Targowa 22;Kamienice Wschód Sp. z o.o.;Elewacja;2026-01-15;940 000,00;7;w_trakcie
+I-004;Dach Mickiewicza 5;Kamienice Wschód Sp. z o.o.;Odbiór końcowy;2025-09-01;560 000,00;7;zakonczona
+I-005;Termomodernizacja Aleja Lipowa 14;Wspólnota Mieszkaniowa Aleja Lipowa 14;Ocieplenie;2026-02-10;1 120 000,00;10;w_trakcie
+I-006;Klatki schodowe Aleja Lipowa 14;Wspólnota Mieszkaniowa Aleja Lipowa 14;Odbiór końcowy;2025-08-01;480 000,00;10;zakonczona
+I-007;Modernizacja Fabryczna 3;Horizon Estates Sp. z o.o.;Roboty rozbiórkowe;2026-06-01;1 380 000,00;5;w_trakcie
+I-008;Osiedle Zielone Wzgórze - etap I;Horizon Estates Sp. z o.o.;Przygotowanie;2026-09-01;2 100 000,00;5;w_przygotowaniu

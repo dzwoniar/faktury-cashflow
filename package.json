@@ -1,0 +1,17 @@
+{
+  "name": "faktury-cashflow",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Kontrola faktur i luki gotowkowej dla firmy prowadzacej wiele inwestycji rownoczesnie. Zero zaleznosci.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "validate": "node src/validate.mjs fixtures/demo-remonty",
+    "metrics": "node src/metrics.mjs fixtures/demo-remonty",
+    "render": "node src/render.mjs output/demo-remonty",
+    "demo": "node src/validate.mjs fixtures/demo-remonty && node src/metrics.mjs fixtures/demo-remonty && node src/render.mjs output/demo-remonty",
+    "test": "node --test"
+  }
+}

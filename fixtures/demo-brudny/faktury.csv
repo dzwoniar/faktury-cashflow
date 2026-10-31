@@ -1,0 +1,6 @@
+id_faktury;id_inwestycji;typ;kontrahent;data_wystawienia;termin_platnosci;kwota_brutto
+FS/2026/01;I-001;sprzedaz;Riverpark Development Sp. z o.o.;2026-02-10;03/04/2026;420 000,00
+FS/2026/02;I-001;sprzedaz;Riverpark Development Sp. z o.o.;2026-04-14;2026-05-14;1.234,56
+FS/2026/03;I-009;sprzedaz;Nieznany Inwestor;2026-06-09;2026-07-09;350 000,00
+FS/2026/03;I-003;sprzedaz;Kamienice Wschód Sp. z o.o.;2026-07-15;2026-08-14;240 000,00
+FZ/2026/01;I-001;zakup;Tynki Malecki;2026-07-20;2026-07-01;145 000,00
