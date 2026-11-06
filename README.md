@@ -6,6 +6,8 @@ remonty, wykończenia). Excel na wejściu, jeden samodzielny plik HTML na wyjśc
 > **Status:** demo na danych syntetycznych. Silnik i testy są prawdziwe, dane w `fixtures/` są
 > w całości zmyślone. Nie jest to gotowy produkt ani wdrożenie u klienta.
 
+**[Otwórz przykładowy dashboard](https://dzwoniar.github.io/faktury-cashflow/)**. Przełącz scenariusz przepływów i sprawdź, które faktury są po terminie. Dane syntetyczne.
+
 Odpowiada na cztery pytania, których nie widać w arkuszu z 300 wierszami:
 
 1. Które faktury są po terminie i od ilu dni.
@@ -120,8 +122,9 @@ src/
 fixtures/
   demo-remonty/           # 8 inwestycji, 35 faktur, 18 wpłat, dane w pełni syntetyczne
   demo-brudny/            # celowo popsuty zestaw do pokazania NEEDS_REVIEW
-test/                     # 60 testów (node --test)
-output/                   # generowane; demo-remonty commitowane jako próbka
+test/                     # 61 testów (node --test)
+docs/index.html           # przykładowy dashboard opublikowany w GitHub Pages
+output/                   # wyniki generowane lokalnie
 ```
 
 ### Schematy wejść
@@ -160,4 +163,4 @@ Trzecia komenda uruchomiona dwa razy musi dać bit-identyczny `metrics.json`.
 
 ## Wersja portfolio i walidacja
 
-Repozytorium zawiera kod oraz syntetyczne zestawy demonstracyjne. Realne arkusze, raporty, cache wdrożeń, screeny i materiały klienta nie są częścią publikacji. Wyniki generuj lokalnie według komend powyżej. CI uruchamia istniejące testy na Node 24, bez zależności npm i bez sekretów. Ta publikacja kodu nie potwierdza bezpieczeństwa dowolnych zewnętrznych danych wejściowych ani gotowości produktu do wdrożenia.
+Repozytorium zawiera kod oraz syntetyczne zestawy demonstracyjne. Realne arkusze, raporty, cache wdrożeń, screeny i materiały klienta nie są częścią publikacji. Publiczny dashboard powstaje z `fixtures/demo-remonty`. Aby go odtworzyć, uruchom `npm run demo` i skopiuj `output/demo-remonty/dashboard.html` do `docs/index.html`. CI uruchamia istniejące testy na Node 24, bez zależności npm i bez sekretów. Ta publikacja kodu nie potwierdza bezpieczeństwa dowolnych zewnętrznych danych wejściowych ani gotowości produktu do wdrożenia.

@@ -146,10 +146,9 @@ function panelScenariusza(metryki, definicja) {
         <thead><tr><th>Tydzien od</th><th class="num">Wplywy</th><th class="num">Wyplaty</th><th class="num">Saldo na koniec</th></tr></thead>
         <tbody>${wierszeTabeli}</tbody>
       </table>
-    </div>
-    ${
+    </div>${
       scenariusz.poHoryzoncieWplywy > 0
-        ? `<p class="przypis">Poza horyzontem ${metryki.konfiguracja.horyzontTygodni} tygodni zostaje jeszcze ${esc(formatPLN(scenariusz.poHoryzoncieWplywy))} naleznosci. Te pieniadze istnieja, ale nie pomoga w zadnym z tygodni powyzej.</p>`
+        ? `\n    <p class="przypis">Poza horyzontem ${metryki.konfiguracja.horyzontTygodni} tygodni zostaje jeszcze ${esc(formatPLN(scenariusz.poHoryzoncieWplywy))} naleznosci. Te pieniadze istnieja, ale nie pomoga w zadnym z tygodni powyzej.</p>`
         : ''
     }
   </div>`;
