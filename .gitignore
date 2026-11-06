@@ -2,11 +2,6 @@ node_modules/
 .DS_Store
 *.log
 
-# Wyniki generowane lokalnie. Katalog demo-remonty jest commitowany jako probka
-# (patrz README), reszta zostaje na dysku.
-output/*
-!output/demo-remonty/
-
 # Nigdy nie commitujemy realnych danych klienta.
 fixtures/klient-*/
 *.xlsx

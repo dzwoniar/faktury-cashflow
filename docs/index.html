@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kontrola faktur i gotowki: Firma Demonstracyjna Sp. z o.o.</title>
+<style>
+:root {
+  --tlo: #f6f5f2;
+  --karta: #ffffff;
+  --tekst: #16181d;
+  --przygaszony: #5f6672;
+  --slaby: #9aa1ad;
+  --linia: #e2e4e8;
+  --linia-mocna: #c6cad1;
+  --akcent: #1f2937;
+  --zly: #b3261e;
+  --zly-tlo: #fdf2f1;
+  --uwazny: #8a5a00;
+  --uwazny-tlo: #fdf8ee;
+  --dobry: #1f6a3f;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tlo: #14161a;
+    --karta: #1b1e24;
+    --tekst: #e9ecf1;
+    --przygaszony: #a3abb8;
+    --slaby: #6b7280;
+    --linia: #2a2e36;
+    --linia-mocna: #3d434d;
+    --akcent: #e9ecf1;
+    --zly: #f0857c;
+    --zly-tlo: #2a1a19;
+    --uwazny: #e0b25e;
+    --uwazny-tlo: #2a2318;
+    --dobry: #6bbf8a;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--tlo);
+  color: var(--tekst);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  -webkit-text-size-adjust: 100%;
+}
+.strona { max-width: 1080px; margin: 0 auto; padding: 20px 16px 56px; }
+header { margin-bottom: 20px; }
+.nadtytul { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--przygaszony); }
+h1 { font-size: 22px; line-height: 1.2; margin: 4px 0 2px; font-weight: 650; }
+.stan-na { color: var(--przygaszony); font-size: 13px; }
+h2 { font-size: 13px; letter-spacing: .07em; text-transform: uppercase; color: var(--przygaszony); font-weight: 600; margin: 32px 0 10px; }
+h2:first-of-type { margin-top: 24px; }
+section { background: var(--karta); border: 1px solid var(--linia); border-radius: 10px; padding: 14px 16px; }
+
+.kafelki { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--linia); border: 1px solid var(--linia); border-radius: 10px; overflow: hidden; }
+.kafelek { background: var(--karta); padding: 12px 14px; }
+.kafelek-num { font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
+.kafelek-opis { font-size: 12px; color: var(--przygaszony); margin-top: 2px; }
+
+.fakty { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 12px 0 4px; }
+.fakt-num { font-size: 20px; font-weight: 650; }
+.fakt-opis { font-size: 12px; color: var(--przygaszony); }
+.zly, .zly-tekst { color: var(--zly); }
+.uwazny, .uwazny-tekst { color: var(--uwazny); }
+.brak { color: var(--slaby); font-weight: 400; }
+.pusto { color: var(--slaby); }
+
+.przelacznik { position: absolute; opacity: 0; pointer-events: none; }
+.paski-scenariuszy { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+.etykieta-scenariusza { font-size: 13px; padding: 6px 12px; border: 1px solid var(--linia-mocna); border-radius: 999px; cursor: pointer; color: var(--przygaszony); user-select: none; }
+.panel-scenariusza { display: none; }
+#scen-p50:checked ~ .paski-scenariuszy label[for="scen-p50"],
+#scen-p75:checked ~ .paski-scenariuszy label[for="scen-p75"],
+#scen-p90:checked ~ .paski-scenariuszy label[for="scen-p90"] { background: var(--akcent); color: var(--karta); border-color: var(--akcent); }
+#scen-p50:checked ~ #panel-p50,
+#scen-p75:checked ~ #panel-p75,
+#scen-p90:checked ~ #panel-p90 { display: block; }
+.opis-scenariusza { font-size: 13px; color: var(--przygaszony); margin: 8px 0 0; }
+
+.wykres { width: 100%; height: auto; margin: 12px 0 4px; display: block; }
+.slupek { fill: var(--akcent); }
+.slupek.ostrzezenie { fill: var(--uwazny); }
+.slupek.ujemny { fill: var(--zly); }
+.linia-zero { stroke: var(--linia-mocna); stroke-width: 1.5; }
+.linia-poduszka { stroke: var(--uwazny); stroke-width: 1; stroke-dasharray: 4 4; }
+.etykieta-linii { font-size: 11px; fill: var(--uwazny); font-family: inherit; }
+.os-x { font-size: 11px; fill: var(--przygaszony); text-anchor: middle; font-family: inherit; }
+.os-x.rzadka { display: none; }
+@media (min-width: 680px) { .os-x.rzadka { display: block; } }
+
+.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -16px; padding: 0 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 560px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--linia); vertical-align: top; }
+th { font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--przygaszony); font-weight: 600; border-bottom: 1.5px solid var(--linia-mocna); white-space: nowrap; }
+td.num, th.num { text-align: right; white-space: nowrap; }
+.male { font-size: 12px; color: var(--przygaszony); }
+.mocna { font-weight: 600; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; }
+.nazwa { font-weight: 550; }
+.podpis { font-size: 11.5px; color: var(--przygaszony); margin-top: 1px; }
+tr.zla { background: var(--zly-tlo); }
+tr.uwaga { background: var(--uwazny-tlo); }
+tbody tr:last-child td { border-bottom: 0; }
+
+.znacznik { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 999px; border: 1px solid var(--linia-mocna); color: var(--przygaszony); white-space: nowrap; }
+.znacznik-w_trakcie { border-color: var(--dobry); color: var(--dobry); }
+.znacznik-w_przygotowaniu { border-color: var(--uwazny); color: var(--uwazny); }
+.znacznik-nieoplacona { border-color: var(--zly); color: var(--zly); }
+.znacznik-czesciowo { border-color: var(--uwazny); color: var(--uwazny); }
+
+.pasek { height: 4px; background: var(--linia); border-radius: 2px; margin-top: 4px; overflow: hidden; }
+.pasek span { display: block; height: 4px; background: var(--przygaszony); }
+
+.przypis { font-size: 12.5px; color: var(--przygaszony); margin: 10px 0 0; }
+ul.lista { margin: 6px 0 0; padding-left: 20px; font-size: 13.5px; color: var(--przygaszony); }
+ul.lista li { margin: 5px 0; }
+section.uwagi { border-left: 3px solid var(--uwazny); }
+footer { margin-top: 32px; padding-top: 12px; border-top: 1px solid var(--linia); font-size: 12px; color: var(--slaby); }
+footer p { margin: 3px 0; }
+</style>
+</head>
+<body>
+<div class="strona">
+
+<header>
+  <div class="nadtytul">Kontrola faktur i przeplywow</div>
+  <h1>Firma Demonstracyjna Sp. z o.o.</h1>
+  <div class="stan-na">Stan na 2026-08-11 &middot; 8 inwestycji &middot; 35 faktur</div>
+</header>
+
+<div class="kafelki">
+    <div class="kafelek"><div class="kafelek-num ">2 250 000,00 zl</div><div class="kafelek-opis">Naleznosci otwarte</div></div>
+    <div class="kafelek"><div class="kafelek-num zly">620 000,00 zl</div><div class="kafelek-opis">Po terminie (2 faktur)</div></div>
+    <div class="kafelek"><div class="kafelek-num ">1 524 400,00 zl</div><div class="kafelek-opis">Zobowiazania wobec podwykonawcow</div></div>
+    <div class="kafelek"><div class="kafelek-num uwazny">282 400,00 zl</div><div class="kafelek-opis">Po terminie (3 faktur)</div></div>
+    <div class="kafelek"><div class="kafelek-num ">564 300,00 zl</div><div class="kafelek-opis">Kaucje zatrzymane do odbioru</div></div>
+    <div class="kafelek"><div class="kafelek-num ">720 000,00 zl</div><div class="kafelek-opis">Saldo na dzien raportu</div></div>
+  </div>
+
+<h2>Kiedy zabraknie gotowki</h2>
+<section>
+  <input type="radio" name="scenariusz" id="scen-p50" class="przelacznik" checked><input type="radio" name="scenariusz" id="scen-p75" class="przelacznik"><input type="radio" name="scenariusz" id="scen-p90" class="przelacznik">
+  <div class="paski-scenariuszy"><label for="scen-p50" class="etykieta-scenariusza">Typowy</label><label for="scen-p75" class="etykieta-scenariusza">Ostrozny</label><label for="scen-p90" class="etykieta-scenariusza">Pesymistyczny</label></div>
+  <div class="panel-scenariusza" id="panel-p50">
+    <p class="opis-scenariusza">Mediana opoznien z historii tego inwestora.</p>
+    <div class="fakty">
+      <div class="fakt">
+        <div class="fakt-num zly">-284 400,00 zl</div>
+        <div class="fakt-opis">Najnizsze saldo w horyzoncie, tydzien 2026-08-24</div>
+      </div>
+      <div class="fakt">
+        <div class="fakt-num zly">1</div>
+        <div class="fakt-opis">Tygodni z saldem ponizej zera</div>
+      </div>
+      <div class="fakt">
+        <div class="fakt-num uwazny">4</div>
+        <div class="fakt-opis">Tygodni ponizej poduszki</div>
+      </div>
+      <div class="fakt">
+        <div class="fakt-num ">81%</div>
+        <div class="fakt-opis">Wplywow opartych na historii tego inwestora</div>
+      </div>
+    </div>
+    <svg class="wykres" viewBox="0 0 760 260" role="img" preserveAspectRatio="xMidYMid meet" aria-label="Prognozowane saldo na koniec kazdego tygodnia">
+    <rect class="slupek" x="16.7" y="128.9" width="44.6" height="55.9"><title>2026-08-10: 479 100,00 zl</title></rect><rect class="slupek ostrzezenie" x="78.7" y="158.2" width="44.6" height="26.6"><title>2026-08-17: 228 100,00 zl</title></rect><rect class="slupek ujemny" x="140.7" y="184.8" width="44.6" height="33.2"><title>2026-08-24: -284 400,00 zl</title></rect><rect class="slupek ostrzezenie" x="202.7" y="178.3" width="44.6" height="6.5"><title>2026-08-31: 55 600,00 zl</title></rect><rect class="slupek ostrzezenie" x="264.7" y="178.3" width="44.6" height="6.5"><title>2026-09-07: 55 600,00 zl</title></rect><rect class="slupek" x="326.7" y="143.3" width="44.6" height="41.5"><title>2026-09-14: 355 600,00 zl</title></rect><rect class="slupek" x="388.7" y="46.4" width="44.6" height="138.4"><title>2026-09-21: 1 185 600,00 zl</title></rect><rect class="slupek" x="450.7" y="46.4" width="44.6" height="138.4"><title>2026-09-28: 1 185 600,00 zl</title></rect><rect class="slupek" x="512.7" y="46.4" width="44.6" height="138.4"><title>2026-10-05: 1 185 600,00 zl</title></rect><rect class="slupek" x="574.7" y="46.4" width="44.6" height="138.4"><title>2026-10-12: 1 185 600,00 zl</title></rect><rect class="slupek" x="636.7" y="16.0" width="44.6" height="168.8"><title>2026-10-19: 1 445 600,00 zl</title></rect><rect class="slupek" x="698.7" y="16.0" width="44.6" height="168.8"><title>2026-10-26: 1 445 600,00 zl</title></rect>
+    <line class="linia-zero" x1="8" y1="184.8" x2="752" y2="184.8"></line>
+    <line class="linia-poduszka" x1="8" y1="155.6" x2="752" y2="155.6"></line>
+         <text class="etykieta-linii" x="752" y="150.6" text-anchor="end">poduszka 250 000,00 zl</text>
+    <text class="os-x" x="39.0" y="234.0">08.10</text><text class="os-x rzadka" x="101.0" y="234.0">08.17</text><text class="os-x" x="163.0" y="234.0">08.24</text><text class="os-x rzadka" x="225.0" y="234.0">08.31</text><text class="os-x" x="287.0" y="234.0">09.07</text><text class="os-x rzadka" x="349.0" y="234.0">09.14</text><text class="os-x" x="411.0" y="234.0">09.21</text><text class="os-x rzadka" x="473.0" y="234.0">09.28</text><text class="os-x" x="535.0" y="234.0">10.05</text><text class="os-x rzadka" x="597.0" y="234.0">10.12</text><text class="os-x" x="659.0" y="234.0">10.19</text><text class="os-x rzadka" x="721.0" y="234.0">10.26</text>
+  </svg>
+    <div class="scroll-x">
+      <table class="tabela-tygodni">
+        <thead><tr><th>Tydzien od</th><th class="num">Wplywy</th><th class="num">Wyplaty</th><th class="num">Saldo na koniec</th></tr></thead>
+        <tbody><tr>
+        <td>2026-08-10</td>
+        <td class="num">240 000,00</td>
+        <td class="num">480 900,00</td>
+        <td class="num mocna">479 100,00</td>
+      </tr><tr class="uwaga">
+        <td>2026-08-17</td>
+        <td class="num">280 000,00</td>
+        <td class="num">531 000,00</td>
+        <td class="num mocna">228 100,00</td>
+      </tr><tr class="zla">
+        <td>2026-08-24</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num">512 500,00</td>
+        <td class="num mocna">-284 400,00</td>
+      </tr><tr class="uwaga">
+        <td>2026-08-31</td>
+        <td class="num">340 000,00</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">55 600,00</td>
+      </tr><tr class="uwaga">
+        <td>2026-09-07</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">55 600,00</td>
+      </tr><tr>
+        <td>2026-09-14</td>
+        <td class="num">300 000,00</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">355 600,00</td>
+      </tr><tr>
+        <td>2026-09-21</td>
+        <td class="num">830 000,00</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">1 185 600,00</td>
+      </tr><tr>
+        <td>2026-09-28</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">1 185 600,00</td>
+      </tr><tr>
+        <td>2026-10-05</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">1 185 600,00</td>
+      </tr><tr>
+        <td>2026-10-12</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">1 185 600,00</td>
+      </tr><tr>
+        <td>2026-10-19</td>
+        <td class="num">260 000,00</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">1 445 600,00</td>
+      </tr><tr>
+        <td>2026-10-26</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">1 445 600,00</td>
+      </tr></tbody>
+      </table>
+    </div>
+  </div><div class="panel-scenariusza" id="panel-p75">
+    <p class="opis-scenariusza">Trzy na cztery wplaty historycznie przyszly szybciej.</p>
+    <div class="fakty">
+      <div class="fakt">
+        <div class="fakt-num zly">-284 400,00 zl</div>
+        <div class="fakt-opis">Najnizsze saldo w horyzoncie, tydzien 2026-08-24</div>
+      </div>
+      <div class="fakt">
+        <div class="fakt-num zly">4</div>
+        <div class="fakt-opis">Tygodni z saldem ponizej zera</div>
+      </div>
+      <div class="fakt">
+        <div class="fakt-num uwazny">6</div>
+        <div class="fakt-opis">Tygodni ponizej poduszki</div>
+      </div>
+      <div class="fakt">
+        <div class="fakt-num ">81%</div>
+        <div class="fakt-opis">Wplywow opartych na historii tego inwestora</div>
+      </div>
+    </div>
+    <svg class="wykres" viewBox="0 0 760 260" role="img" preserveAspectRatio="xMidYMid meet" aria-label="Prognozowane saldo na koniec kazdego tygodnia">
+    <rect class="slupek ostrzezenie" x="16.7" y="146.1" width="44.6" height="32.9"><title>2026-08-10: 239 100,00 zl</title></rect><rect class="slupek ujemny" x="78.7" y="178.9" width="44.6" height="7.1"><title>2026-08-17: -51 900,00 zl</title></rect><rect class="slupek ujemny" x="140.7" y="178.9" width="44.6" height="39.1"><title>2026-08-24: -284 400,00 zl</title></rect><rect class="slupek ujemny" x="202.7" y="178.9" width="44.6" height="39.1"><title>2026-08-31: -284 400,00 zl</title></rect><rect class="slupek ujemny" x="264.7" y="178.9" width="44.6" height="39.1"><title>2026-09-07: -284 400,00 zl</title></rect><rect class="slupek ostrzezenie" x="326.7" y="171.3" width="44.6" height="7.6"><title>2026-09-14: 55 600,00 zl</title></rect><rect class="slupek" x="388.7" y="73.7" width="44.6" height="105.2"><title>2026-09-21: 765 600,00 zl</title></rect><rect class="slupek" x="450.7" y="16.0" width="44.6" height="162.9"><title>2026-09-28: 1 185 600,00 zl</title></rect><rect class="slupek" x="512.7" y="16.0" width="44.6" height="162.9"><title>2026-10-05: 1 185 600,00 zl</title></rect><rect class="slupek" x="574.7" y="16.0" width="44.6" height="162.9"><title>2026-10-12: 1 185 600,00 zl</title></rect><rect class="slupek" x="636.7" y="16.0" width="44.6" height="162.9"><title>2026-10-19: 1 185 600,00 zl</title></rect><rect class="slupek" x="698.7" y="16.0" width="44.6" height="162.9"><title>2026-10-26: 1 185 600,00 zl</title></rect>
+    <line class="linia-zero" x1="8" y1="178.9" x2="752" y2="178.9"></line>
+    <line class="linia-poduszka" x1="8" y1="144.6" x2="752" y2="144.6"></line>
+         <text class="etykieta-linii" x="752" y="139.6" text-anchor="end">poduszka 250 000,00 zl</text>
+    <text class="os-x" x="39.0" y="234.0">08.10</text><text class="os-x rzadka" x="101.0" y="234.0">08.17</text><text class="os-x" x="163.0" y="234.0">08.24</text><text class="os-x rzadka" x="225.0" y="234.0">08.31</text><text class="os-x" x="287.0" y="234.0">09.07</text><text class="os-x rzadka" x="349.0" y="234.0">09.14</text><text class="os-x" x="411.0" y="234.0">09.21</text><text class="os-x rzadka" x="473.0" y="234.0">09.28</text><text class="os-x" x="535.0" y="234.0">10.05</text><text class="os-x rzadka" x="597.0" y="234.0">10.12</text><text class="os-x" x="659.0" y="234.0">10.19</text><text class="os-x rzadka" x="721.0" y="234.0">10.26</text>
+  </svg>
+    <div class="scroll-x">
+      <table class="tabela-tygodni">
+        <thead><tr><th>Tydzien od</th><th class="num">Wplywy</th><th class="num">Wyplaty</th><th class="num">Saldo na koniec</th></tr></thead>
+        <tbody><tr class="uwaga">
+        <td>2026-08-10</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num">480 900,00</td>
+        <td class="num mocna">239 100,00</td>
+      </tr><tr class="zla">
+        <td>2026-08-17</td>
+        <td class="num">240 000,00</td>
+        <td class="num">531 000,00</td>
+        <td class="num mocna">-51 900,00</td>
+      </tr><tr class="zla">
+        <td>2026-08-24</td>
+        <td class="num">280 000,00</td>
+        <td class="num">512 500,00</td>
+        <td class="num mocna">-284 400,00</td>
+      </tr><tr class="zla">
+        <td>2026-08-31</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">-284 400,00</td>
+      </tr><tr class="zla">
+        <td>2026-09-07</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">-284 400,00</td>
+      </tr><tr class="uwaga">
+        <td>2026-09-14</td>
+        <td class="num">340 000,00</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">55 600,00</td>
+      </tr><tr>
+        <td>2026-09-21</td>
+        <td class="num">710 000,00</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">765 600,00</td>
+      </tr><tr>
+        <td>2026-09-28</td>
+        <td class="num">420 000,00</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">1 185 600,00</td>
+      </tr><tr>
+        <td>2026-10-05</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">1 185 600,00</td>
+      </tr><tr>
+        <td>2026-10-12</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">1 185 600,00</td>
+      </tr><tr>
+        <td>2026-10-19</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">1 185 600,00</td>
+      </tr><tr>
+        <td>2026-10-26</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">1 185 600,00</td>
+      </tr></tbody>
+      </table>
+    </div>
+    <p class="przypis">Poza horyzontem 12 tygodni zostaje jeszcze 260 000,00 zl naleznosci. Te pieniadze istnieja, ale nie pomoga w zadnym z tygodni powyzej.</p>
+  </div><div class="panel-scenariusza" id="panel-p90">
+    <p class="opis-scenariusza">Dziewiec na dziesiec wplat historycznie przyszlo szybciej.</p>
+    <div class="fakty">
+      <div class="fakt">
+        <div class="fakt-num zly">-284 400,00 zl</div>
+        <div class="fakt-opis">Najnizsze saldo w horyzoncie, tydzien 2026-08-24</div>
+      </div>
+      <div class="fakt">
+        <div class="fakt-num zly">4</div>
+        <div class="fakt-opis">Tygodni z saldem ponizej zera</div>
+      </div>
+      <div class="fakt">
+        <div class="fakt-num uwazny">6</div>
+        <div class="fakt-opis">Tygodni ponizej poduszki</div>
+      </div>
+      <div class="fakt">
+        <div class="fakt-num ">81%</div>
+        <div class="fakt-opis">Wplywow opartych na historii tego inwestora</div>
+      </div>
+    </div>
+    <svg class="wykres" viewBox="0 0 760 260" role="img" preserveAspectRatio="xMidYMid meet" aria-label="Prognozowane saldo na koniec kazdego tygodnia">
+    <rect class="slupek ostrzezenie" x="16.7" y="146.1" width="44.6" height="32.9"><title>2026-08-10: 239 100,00 zl</title></rect><rect class="slupek ujemny" x="78.7" y="178.9" width="44.6" height="7.1"><title>2026-08-17: -51 900,00 zl</title></rect><rect class="slupek ujemny" x="140.7" y="178.9" width="44.6" height="39.1"><title>2026-08-24: -284 400,00 zl</title></rect><rect class="slupek ujemny" x="202.7" y="178.9" width="44.6" height="39.1"><title>2026-08-31: -284 400,00 zl</title></rect><rect class="slupek ujemny" x="264.7" y="178.9" width="44.6" height="39.1"><title>2026-09-07: -284 400,00 zl</title></rect><rect class="slupek ostrzezenie" x="326.7" y="171.3" width="44.6" height="7.6"><title>2026-09-14: 55 600,00 zl</title></rect><rect class="slupek" x="388.7" y="130.1" width="44.6" height="48.9"><title>2026-09-21: 355 600,00 zl</title></rect><rect class="slupek" x="450.7" y="73.7" width="44.6" height="105.2"><title>2026-09-28: 765 600,00 zl</title></rect><rect class="slupek" x="512.7" y="73.7" width="44.6" height="105.2"><title>2026-10-05: 765 600,00 zl</title></rect><rect class="slupek" x="574.7" y="16.0" width="44.6" height="162.9"><title>2026-10-12: 1 185 600,00 zl</title></rect><rect class="slupek" x="636.7" y="16.0" width="44.6" height="162.9"><title>2026-10-19: 1 185 600,00 zl</title></rect><rect class="slupek" x="698.7" y="16.0" width="44.6" height="162.9"><title>2026-10-26: 1 185 600,00 zl</title></rect>
+    <line class="linia-zero" x1="8" y1="178.9" x2="752" y2="178.9"></line>
+    <line class="linia-poduszka" x1="8" y1="144.6" x2="752" y2="144.6"></line>
+         <text class="etykieta-linii" x="752" y="139.6" text-anchor="end">poduszka 250 000,00 zl</text>
+    <text class="os-x" x="39.0" y="234.0">08.10</text><text class="os-x rzadka" x="101.0" y="234.0">08.17</text><text class="os-x" x="163.0" y="234.0">08.24</text><text class="os-x rzadka" x="225.0" y="234.0">08.31</text><text class="os-x" x="287.0" y="234.0">09.07</text><text class="os-x rzadka" x="349.0" y="234.0">09.14</text><text class="os-x" x="411.0" y="234.0">09.21</text><text class="os-x rzadka" x="473.0" y="234.0">09.28</text><text class="os-x" x="535.0" y="234.0">10.05</text><text class="os-x rzadka" x="597.0" y="234.0">10.12</text><text class="os-x" x="659.0" y="234.0">10.19</text><text class="os-x rzadka" x="721.0" y="234.0">10.26</text>
+  </svg>
+    <div class="scroll-x">
+      <table class="tabela-tygodni">
+        <thead><tr><th>Tydzien od</th><th class="num">Wplywy</th><th class="num">Wyplaty</th><th class="num">Saldo na koniec</th></tr></thead>
+        <tbody><tr class="uwaga">
+        <td>2026-08-10</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num">480 900,00</td>
+        <td class="num mocna">239 100,00</td>
+      </tr><tr class="zla">
+        <td>2026-08-17</td>
+        <td class="num">240 000,00</td>
+        <td class="num">531 000,00</td>
+        <td class="num mocna">-51 900,00</td>
+      </tr><tr class="zla">
+        <td>2026-08-24</td>
+        <td class="num">280 000,00</td>
+        <td class="num">512 500,00</td>
+        <td class="num mocna">-284 400,00</td>
+      </tr><tr class="zla">
+        <td>2026-08-31</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">-284 400,00</td>
+      </tr><tr class="zla">
+        <td>2026-09-07</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">-284 400,00</td>
+      </tr><tr class="uwaga">
+        <td>2026-09-14</td>
+        <td class="num">340 000,00</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">55 600,00</td>
+      </tr><tr>
+        <td>2026-09-21</td>
+        <td class="num">300 000,00</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">355 600,00</td>
+      </tr><tr>
+        <td>2026-09-28</td>
+        <td class="num">410 000,00</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">765 600,00</td>
+      </tr><tr>
+        <td>2026-10-05</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">765 600,00</td>
+      </tr><tr>
+        <td>2026-10-12</td>
+        <td class="num">420 000,00</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">1 185 600,00</td>
+      </tr><tr>
+        <td>2026-10-19</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">1 185 600,00</td>
+      </tr><tr>
+        <td>2026-10-26</td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num"><span class="pusto">-</span></td>
+        <td class="num mocna">1 185 600,00</td>
+      </tr></tbody>
+      </table>
+    </div>
+    <p class="przypis">Poza horyzontem 12 tygodni zostaje jeszcze 260 000,00 zl naleznosci. Te pieniadze istnieja, ale nie pomoga w zadnym z tygodni powyzej.</p>
+  </div>
+  <p class="przypis"><strong>To narzedzie nie mowi, czy zaczac kolejna inwestycje.</strong>
+  Pokazuje, w ktorym tygodniu i o ile saldo schodzi ponizej poduszki przy trzech scenariuszach
+  zachowania inwestorow, i na czym to policzono. Reszte wiesz Ty: obietnice z telefonow,
+  zaawansowanie robot, dostepna linia kredytowa. Tego nie ma w zadnym arkuszu.</p>
+</section>
+
+<h2>Na czym oparta jest prognoza</h2>
+<section>
+  <div class="scroll-x"><table>
+    <thead><tr><th>Inwestor</th><th class="num male">Domknietych faktur</th><th class="num">Typowo</th><th class="num">Ostroznie</th><th class="num">Pesymistycznie</th><th class="num male">Zakres</th></tr></thead>
+    <tbody><tr class="uwaga">
+      <td>Horizon Estates Sp. z o.o.</td>
+      <td class="num male">1</td>
+      <td class="num"><span class="pusto">N/A</span></td>
+      <td class="num"><span class="pusto">N/A</span></td>
+      <td class="num"><span class="pusto">N/A</span></td>
+      <td class="num male">+10 do +10</td>
+    </tr><tr>
+      <td>Kamienice Wschód Sp. z o.o.</td>
+      <td class="num male">5</td>
+      <td class="num">-1 dni</td>
+      <td class="num">+4 dni</td>
+      <td class="num">+6 dni</td>
+      <td class="num male">-2 do +6</td>
+    </tr><tr>
+      <td>Riverpark Development Sp. z o.o.</td>
+      <td class="num male">4</td>
+      <td class="num">+22 dni</td>
+      <td class="num">+25 dni</td>
+      <td class="num">+26 dni</td>
+      <td class="num male">+21 do +26</td>
+    </tr><tr>
+      <td>Wspólnota Mieszkaniowa Aleja Lipowa 14</td>
+      <td class="num male">3</td>
+      <td class="num">+45 dni</td>
+      <td class="num">+62 dni</td>
+      <td class="num">+62 dni</td>
+      <td class="num male">+44 do +62</td>
+    </tr></tbody>
+  </table>
+  </div>
+  <p class="przypis">Opoznienie liczone jako dzien ostatniej wplaty minus termin z faktury, wylacznie dla faktur domknietych do zera.
+  Przy historii krotszej niz 3 domkniete faktury percentyle sa nieoznaczone (N/A) i prognoza dla takiego inwestora korzysta ze sredniej z pozostalych.
+  Nieoznaczone znaczy nieoznaczone, nie zero.</p>
+</section>
+
+<h2>Czego ta prognoza nie wie</h2><section class="uwagi"><ul class="lista"><li>Inwestorzy z historia krotsza niz 3 domkniete faktury: Horizon Estates Sp. z o.o. (1). Percentyle dla nich sa nieoznaczone.</li></ul></section>
+
+<h2>Wiekowanie naleznosci i zobowiazan</h2>
+<section>
+  <div class="scroll-x"><table>
+    <thead><tr><th>Przedzial</th><th class="num">Naleznosci</th><th class="num male">szt.</th><th class="num">Zobowiazania</th><th class="num male">szt.</th></tr></thead>
+    <tbody><tr>
+      <td>Termin przed nami</td>
+      <td class="num">1 630 000,00</td>
+      <td class="num male">5</td>
+      <td class="num">1 242 000,00</td>
+      <td class="num male">8</td>
+    </tr><tr class="zla">
+      <td>Po terminie 1-30 dni</td>
+      <td class="num">620 000,00</td>
+      <td class="num male">2</td>
+      <td class="num">282 400,00</td>
+      <td class="num male">3</td>
+    </tr></tbody>
+  </table></div>
+</section>
+
+<h2>Inwestycje</h2>
+<section>
+  <div class="scroll-x"><table>
+    <thead><tr>
+      <th>Inwestycja</th><th>Status</th><th class="num">Kontrakt</th><th class="num">Zafakturowano</th>
+      <th class="num">Naleznosci</th><th class="num">Po terminie</th><th class="num">Zobowiazania</th><th class="num">Kaucja</th>
+    </tr></thead>
+    <tbody><tr>
+      <td>
+        <div class="nazwa">Kamienica Słoneczna 8 - renowacja elewacji</div>
+        <div class="podpis">Riverpark Development Sp. z o.o. &middot; Elewacja i detal</div>
+      </td>
+      <td><span class="znacznik znacznik-w_trakcie">W trakcie</span></td>
+      <td class="num">1 850 000,00</td>
+      <td class="num">
+        78%
+        <div class="pasek"><span style="width:78.4%"></span></div>
+      </td>
+      <td class="num">300 000,00</td>
+      <td class="num"><span class="pusto">-</span></td>
+      <td class="num">207 400,00</td>
+      <td class="num">92 500,00</td>
+    </tr><tr>
+      <td>
+        <div class="nazwa">Riverpark Etap II - części wspólne</div>
+        <div class="podpis">Riverpark Development Sp. z o.o. &middot; Stan wykończeniowy</div>
+      </td>
+      <td><span class="znacznik znacznik-w_trakcie">W trakcie</span></td>
+      <td class="num">2 400 000,00</td>
+      <td class="num">
+        59%
+        <div class="pasek"><span style="width:58.8%"></span></div>
+      </td>
+      <td class="num">690 000,00</td>
+      <td class="num zly-tekst">280 000,00<div class="podpis">11 dni</div></td>
+      <td class="num">374 500,00</td>
+      <td class="num">120 000,00</td>
+    </tr><tr>
+      <td>
+        <div class="nazwa">Elewacja Targowa 22</div>
+        <div class="podpis">Kamienice Wschód Sp. z o.o. &middot; Elewacja</div>
+      </td>
+      <td><span class="znacznik znacznik-w_trakcie">W trakcie</span></td>
+      <td class="num">940 000,00</td>
+      <td class="num">
+        88%
+        <div class="pasek"><span style="width:88.3%"></span></div>
+      </td>
+      <td class="num">240 000,00</td>
+      <td class="num"><span class="pusto">-</span></td>
+      <td class="num">183 500,00</td>
+      <td class="num">65 800,00</td>
+    </tr><tr>
+      <td>
+        <div class="nazwa">Dach Mickiewicza 5</div>
+        <div class="podpis">Kamienice Wschód Sp. z o.o. &middot; Odbiór końcowy</div>
+      </td>
+      <td><span class="znacznik znacznik-zakonczona">Zakończona</span></td>
+      <td class="num">560 000,00</td>
+      <td class="num">
+        100%
+        <div class="pasek"><span style="width:100.0%"></span></div>
+      </td>
+      <td class="num"><span class="pusto">-</span></td>
+      <td class="num"><span class="pusto">-</span></td>
+      <td class="num"><span class="pusto">-</span></td>
+      <td class="num">39 200,00</td>
+    </tr><tr>
+      <td>
+        <div class="nazwa">Termomodernizacja Aleja Lipowa 14</div>
+        <div class="podpis">Wspólnota Mieszkaniowa Aleja Lipowa 14 &middot; Ocieplenie</div>
+      </td>
+      <td><span class="znacznik znacznik-w_trakcie">W trakcie</span></td>
+      <td class="num">1 120 000,00</td>
+      <td class="num">
+        88%
+        <div class="pasek"><span style="width:87.5%"></span></div>
+      </td>
+      <td class="num">600 000,00</td>
+      <td class="num zly-tekst">340 000,00<div class="podpis">22 dni</div></td>
+      <td class="num">236 000,00</td>
+      <td class="num">112 000,00</td>
+    </tr><tr>
+      <td>
+        <div class="nazwa">Klatki schodowe Aleja Lipowa 14</div>
+        <div class="podpis">Wspólnota Mieszkaniowa Aleja Lipowa 14 &middot; Odbiór końcowy</div>
+      </td>
+      <td><span class="znacznik znacznik-zakonczona">Zakończona</span></td>
+      <td class="num">480 000,00</td>
+      <td class="num">
+        90%
+        <div class="pasek"><span style="width:90.0%"></span></div>
+      </td>
+      <td class="num"><span class="pusto">-</span></td>
+      <td class="num"><span class="pusto">-</span></td>
+      <td class="num"><span class="pusto">-</span></td>
+      <td class="num">48 000,00</td>
+    </tr><tr>
+      <td>
+        <div class="nazwa">Modernizacja Fabryczna 3</div>
+        <div class="podpis">Horizon Estates Sp. z o.o. &middot; Roboty rozbiórkowe</div>
+      </td>
+      <td><span class="znacznik znacznik-w_trakcie">W trakcie</span></td>
+      <td class="num">1 380 000,00</td>
+      <td class="num">
+        52%
+        <div class="pasek"><span style="width:52.2%"></span></div>
+      </td>
+      <td class="num">420 000,00</td>
+      <td class="num"><span class="pusto">-</span></td>
+      <td class="num">378 000,00</td>
+      <td class="num">69 000,00</td>
+    </tr><tr>
+      <td>
+        <div class="nazwa">Osiedle Zielone Wzgórze - etap I</div>
+        <div class="podpis">Horizon Estates Sp. z o.o. &middot; Przygotowanie</div>
+      </td>
+      <td><span class="znacznik znacznik-w_przygotowaniu">W przygotowaniu</span></td>
+      <td class="num">2 100 000,00</td>
+      <td class="num">
+        0%
+        <div class="pasek"><span style="width:0.0%"></span></div>
+      </td>
+      <td class="num"><span class="pusto">-</span></td>
+      <td class="num"><span class="pusto">-</span></td>
+      <td class="num">145 000,00</td>
+      <td class="num">105 000,00</td>
+    </tr></tbody>
+  </table></div>
+</section>
+
+<h2>Faktury otwarte, najpilniejsze u gory</h2>
+<section>
+  <div class="scroll-x"><table>
+    <thead><tr><th>Faktura</th><th>Kierunek</th><th>Kontrahent</th><th>Termin</th><th class="num">Kwota</th><th class="num">Pozostalo</th><th>Stan</th></tr></thead>
+    <tbody><tr class="zla">
+      <td><div class="nazwa mono">FS/2026/11</div><div class="podpis">Termomodernizacja Aleja Lipowa 14</div></td>
+      <td><span class="znacznik znacznik-sprzedaz">Do nas</span></td>
+      <td>Wspólnota Mieszkaniowa Aleja Lipowa 14</td>
+      <td>2026-07-20<div class="podpis"><span class="zly-tekst">22 dni po terminie</span></div></td>
+      <td class="num">340 000,00</td>
+      <td class="num mocna">340 000,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr><tr class="zla">
+      <td><div class="nazwa mono">FS/2026/12</div><div class="podpis">Riverpark Etap II - części wspólne</div></td>
+      <td><span class="znacznik znacznik-sprzedaz">Do nas</span></td>
+      <td>Riverpark Development Sp. z o.o.</td>
+      <td>2026-07-31<div class="podpis"><span class="zly-tekst">11 dni po terminie</span></div></td>
+      <td class="num">480 000,00</td>
+      <td class="num mocna">280 000,00</td>
+      <td><span class="znacznik znacznik-czesciowo">Częściowo</span></td>
+    </tr><tr class="zla">
+      <td><div class="nazwa mono">FZ/2026/06</div><div class="podpis">Elewacja Targowa 22</div></td>
+      <td><span class="znacznik znacznik-zakup">Od nas</span></td>
+      <td>Tynki Malecki</td>
+      <td>2026-07-31<div class="podpis"><span class="zly-tekst">11 dni po terminie</span></div></td>
+      <td class="num">88 000,00</td>
+      <td class="num mocna">88 000,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr><tr class="zla">
+      <td><div class="nazwa mono">FZ/2026/07</div><div class="podpis">Kamienica Słoneczna 8 - renowacja elewacji</div></td>
+      <td><span class="znacznik znacznik-zakup">Od nas</span></td>
+      <td>Hurtownia Cegła i Kamień</td>
+      <td>2026-08-04<div class="podpis"><span class="zly-tekst">7 dni po terminie</span></div></td>
+      <td class="num">62 400,00</td>
+      <td class="num mocna">62 400,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr><tr class="zla">
+      <td><div class="nazwa mono">FZ/2026/08</div><div class="podpis">Termomodernizacja Aleja Lipowa 14</div></td>
+      <td><span class="znacznik znacznik-zakup">Od nas</span></td>
+      <td>Izolacje Termo-Plus</td>
+      <td>2026-08-05<div class="podpis"><span class="zly-tekst">6 dni po terminie</span></div></td>
+      <td class="num">132 000,00</td>
+      <td class="num mocna">132 000,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr><tr>
+      <td><div class="nazwa mono">FS/2026/13</div><div class="podpis">Elewacja Targowa 22</div></td>
+      <td><span class="znacznik znacznik-sprzedaz">Do nas</span></td>
+      <td>Kamienice Wschód Sp. z o.o.</td>
+      <td>2026-08-14<div class="podpis">za 3 dni</div></td>
+      <td class="num">240 000,00</td>
+      <td class="num mocna">240 000,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr><tr>
+      <td><div class="nazwa mono">FZ/2026/09</div><div class="podpis">Riverpark Etap II - części wspólne</div></td>
+      <td><span class="znacznik znacznik-zakup">Od nas</span></td>
+      <td>Elektro-Instal Wschód</td>
+      <td>2026-08-14<div class="podpis">za 3 dni</div></td>
+      <td class="num">198 500,00</td>
+      <td class="num mocna">198 500,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr><tr>
+      <td><div class="nazwa mono">FZ/2026/14</div><div class="podpis">Modernizacja Fabryczna 3</div></td>
+      <td><span class="znacznik znacznik-zakup">Od nas</span></td>
+      <td>Transport Ciężki Woźny</td>
+      <td>2026-08-18<div class="podpis">za 7 dni</div></td>
+      <td class="num">210 000,00</td>
+      <td class="num mocna">210 000,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr><tr>
+      <td><div class="nazwa mono">FZ/2026/03</div><div class="podpis">Kamienica Słoneczna 8 - renowacja elewacji</div></td>
+      <td><span class="znacznik znacznik-zakup">Od nas</span></td>
+      <td>Tynki Malecki</td>
+      <td>2026-08-19<div class="podpis">za 8 dni</div></td>
+      <td class="num">145 000,00</td>
+      <td class="num mocna">145 000,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr><tr>
+      <td><div class="nazwa mono">FZ/2026/11</div><div class="podpis">Riverpark Etap II - części wspólne</div></td>
+      <td><span class="znacznik znacznik-zakup">Od nas</span></td>
+      <td>Izolacje Termo-Plus</td>
+      <td>2026-08-22<div class="podpis">za 11 dni</div></td>
+      <td class="num">176 000,00</td>
+      <td class="num mocna">176 000,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr><tr>
+      <td><div class="nazwa mono">FZ/2026/16</div><div class="podpis">Osiedle Zielone Wzgórze - etap I</div></td>
+      <td><span class="znacznik znacznik-zakup">Od nas</span></td>
+      <td>Hurtownia Cegła i Kamień</td>
+      <td>2026-08-24<div class="podpis">za 13 dni</div></td>
+      <td class="num">145 000,00</td>
+      <td class="num mocna">145 000,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr><tr>
+      <td><div class="nazwa mono">FZ/2026/12</div><div class="podpis">Elewacja Targowa 22</div></td>
+      <td><span class="znacznik znacznik-zakup">Od nas</span></td>
+      <td>Hurtownia Cegła i Kamień</td>
+      <td>2026-08-26<div class="podpis">za 15 dni</div></td>
+      <td class="num">95 500,00</td>
+      <td class="num mocna">95 500,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr><tr>
+      <td><div class="nazwa mono">FS/2026/14</div><div class="podpis">Kamienica Słoneczna 8 - renowacja elewacji</div></td>
+      <td><span class="znacznik znacznik-sprzedaz">Do nas</span></td>
+      <td>Riverpark Development Sp. z o.o.</td>
+      <td>2026-08-27<div class="podpis">za 16 dni</div></td>
+      <td class="num">300 000,00</td>
+      <td class="num mocna">300 000,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr><tr>
+      <td><div class="nazwa mono">FZ/2026/13</div><div class="podpis">Termomodernizacja Aleja Lipowa 14</div></td>
+      <td><span class="znacznik znacznik-zakup">Od nas</span></td>
+      <td>Rusztowania Pion Sp. z o.o.</td>
+      <td>2026-08-28<div class="podpis">za 17 dni</div></td>
+      <td class="num">104 000,00</td>
+      <td class="num mocna">104 000,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr><tr>
+      <td><div class="nazwa mono">FZ/2026/15</div><div class="podpis">Modernizacja Fabryczna 3</div></td>
+      <td><span class="znacznik znacznik-zakup">Od nas</span></td>
+      <td>Elektro-Instal Wschód</td>
+      <td>2026-08-29<div class="podpis">za 18 dni</div></td>
+      <td class="num">168 000,00</td>
+      <td class="num mocna">168 000,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr><tr>
+      <td><div class="nazwa mono">FS/2026/15</div><div class="podpis">Riverpark Etap II - części wspólne</div></td>
+      <td><span class="znacznik znacznik-sprzedaz">Do nas</span></td>
+      <td>Riverpark Development Sp. z o.o.</td>
+      <td>2026-09-02<div class="podpis">za 22 dni</div></td>
+      <td class="num">410 000,00</td>
+      <td class="num mocna">410 000,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr><tr>
+      <td><div class="nazwa mono">FS/2026/18</div><div class="podpis">Modernizacja Fabryczna 3</div></td>
+      <td><span class="znacznik znacznik-sprzedaz">Do nas</span></td>
+      <td>Horizon Estates Sp. z o.o.</td>
+      <td>2026-09-03<div class="podpis">za 23 dni</div></td>
+      <td class="num">420 000,00</td>
+      <td class="num mocna">420 000,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr><tr>
+      <td><div class="nazwa mono">FS/2026/16</div><div class="podpis">Termomodernizacja Aleja Lipowa 14</div></td>
+      <td><span class="znacznik znacznik-sprzedaz">Do nas</span></td>
+      <td>Wspólnota Mieszkaniowa Aleja Lipowa 14</td>
+      <td>2026-09-05<div class="podpis">za 25 dni</div></td>
+      <td class="num">260 000,00</td>
+      <td class="num mocna">260 000,00</td>
+      <td><span class="znacznik znacznik-nieoplacona">Nieopłacona</span></td>
+    </tr></tbody>
+  </table></div>
+</section>
+
+<h2>Zalozenia</h2>
+<section>
+  <ul class="lista"><li>Wplyw od inwestora nastepuje w terminie z faktury powiekszonym o opoznienie z jego wlasnej historii wplat.</li><li>Faktura juz przeterminowana wplywa najwczesniej w dniu sporzadzenia raportu, nigdy wstecz.</li><li>Zobowiazania wobec podwykonawcow sa placone dokladnie w terminie z faktury.</li><li>Kaucje gwarancyjne nie sa liczone jako wplyw, dopoki inwestycja nie ma statusu &quot;zakonczona&quot;.</li><li>Prognoza obejmuje wylacznie faktury juz wystawione. Roboty niezafakturowane nie generuja tu wplywu ani kosztu.</li><li>Brak w projekcji: podatkow, wynagrodzen, rat leasingowych i kosztow stalych, bo one nie wynikaja z rejestru faktur.</li></ul>
+</section>
+
+<footer>
+  <p>Raport wygenerowany deterministycznie z rejestru faktur i wyciagu platnosci. Te same wejscia zawsze daja ten sam wynik.</p>
+  <p>Dane w tym pliku sa w calosci syntetyczne. Zadna nazwa nie odnosi sie do istniejacej firmy ani osoby.</p>
+</footer>
+
+</div>
+</body>
+</html>
